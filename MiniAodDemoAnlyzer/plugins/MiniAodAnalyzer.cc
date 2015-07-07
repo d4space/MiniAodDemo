@@ -68,8 +68,8 @@ class MiniAodAnalyzer : public edm::one::EDAnalyzer<edm::one::SharedResources>  
 
       edm::Service<TFileService> fs;
       TTree* OutTree;
-      Float_t type1pfmet;
-      Float_t type1pfmetPhi;
+      TVector2 t2_type1pfmet;
+      //Float_t type1pfmetPhi;
       Int_t  npv;
 };
 
@@ -138,9 +138,9 @@ MiniAodAnalyzer::analyze(const edm::Event& iEvent, const edm::EventSetup& iSetup
    npv = vertices->size();
 
    const pat::MET &met = mets->front();
-   TVector2 vtype1pfMET = TVector2(met.px(),met.py());
-   type1pfmet    = vtype1pfMET.Mod();
-   type1pfmetPhi = vtype1pfMET.Phi();
+   TVector2 t2_type1pfMET = TVector2(met.px(),met.py());
+   //type1pfmet    = vtype1pfMET.Mod();
+   //type1pfmetPhi = vtype1pfMET.Phi();
 
    // Fill Tree
    OutTree->Fill();
@@ -153,8 +153,8 @@ void
 MiniAodAnalyzer::beginJob()
 {
   OutTree = fs->make<TTree>("Events", "Events");
-  OutTree->Branch("type1pfmet",    &type1pfmet,    "type1pfmet/F");   // Type-1 corrected PF MET
-  OutTree->Branch("type1pfmetPhi",    &type1pfmetPhi,    "type1pfmetPhi/F");   // Type-1 corrected PF MET
+  OutTree->Branch("t2_type1pfmet",    &t2_type1pfmet);   // Type-1 corrected PF MET
+  //OutTree->Branch("type1pfmetPhi",    &type1pfmetPhi,    "type1pfmetPhi/F");   // Type-1 corrected PF MET
   OutTree->Branch("npv",           &npv,           "npv/I");          // number of primary vertices
 
 }
