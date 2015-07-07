@@ -30,7 +30,7 @@ void ctlMET(const TString inputFileName = "Wenu_p_select.root") {
 
   inputTree->SetBranchAddress("npv",         &nVtx);        // number of vertices
 //  inputTree->SetBranchAddress("nEvents",      &nEvents);     // number of events
-  inputTree->SetBranchAddress("vtype1pfMET",  &vtype1pfMET); // type-1 corrected pf MET
+  inputTree->SetBranchAddress("t2_type1pfmet",  &vtype1pfMET); // type-1 corrected pf MET
 //  inputTree->SetBranchAddress("vrawpfMET",    &vrawpfMET);   // raw pf MET
 //  inputTree->SetBranchAddress("vgenMET",      &vgenMET);     // generated MET
            
@@ -140,7 +140,6 @@ void ctlMET(const TString inputFileName = "Wenu_p_select.root") {
   Double_t type1x=0, type1y=0;
   Double_t type1phi=0, rawphi=0, genphi=0;
   Double_t corrMETx=0, corrMETy=0, corrMET=0, corrMETphi=0;
-  
   for(int kentry=0;kentry<inputTree->GetEntries();kentry++) {
     inputTree->GetEntry(kentry);
 
@@ -149,10 +148,10 @@ void ctlMET(const TString inputFileName = "Wenu_p_select.root") {
 
     type1phi = vtype1pfMET->Phi();
     if(type1phi>TMath::Pi()) type1phi -= 2*TMath::Pi();
-    rawphi = vrawpfMET->Phi();
-    if(rawphi>TMath::Pi())   rawphi   -= 2*TMath::Pi();
-    genphi = vgenMET->Phi();
-    if(genphi>TMath::Pi())   genphi   -= 2*TMath::Pi();
+    //rawphi = vrawpfMET->Phi();
+    //if(rawphi>TMath::Pi())   rawphi   -= 2*TMath::Pi();
+    //genphi = vgenMET->Phi();
+    //if(genphi>TMath::Pi())   genphi   -= 2*TMath::Pi();
 
     corrMETx = type1x-flinex0-flinex1*nVtx;
     corrMETy = type1y-fliney0-fliney1*nVtx;
