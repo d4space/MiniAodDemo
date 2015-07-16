@@ -63,12 +63,16 @@ class MiniAodAnalyzer : public edm::one::EDAnalyzer<edm::one::SharedResources>  
       virtual void endJob() override;
 
       // ----------member data ---------------------------
-      edm::EDGetTokenT<pat::METCollection> metToken_;
+      edm::EDGetTokenT<pat::METCollection> slimMetToken_;
+      edm::EDGetTokenT<pat::METCollection> patPFMetT1Token_;
+      edm::EDGetTokenT<pat::METCollection> patPFMetT1TxyToken_;
       edm::EDGetTokenT<reco::VertexCollection> vtxToken_;
 
       edm::Service<TFileService> fs;
       TTree* OutTree;
-      TVector2 t2_type1pfmet;
+      TVector2 t2_slimMet;
+      TVector2 t2_patPFMetT1;
+      TVector2 t2_patPFMetT1Txy;
       //Float_t type1pfmetPhi;
       Int_t  npv;
 };
@@ -86,7 +90,9 @@ typedef ROOT::Math::LorentzVector<ROOT::Math::PtEtaPhiM4D<double> > LorentzVecto
 // constructors and destructor
 //
 MiniAodAnalyzer::MiniAodAnalyzer(const edm::ParameterSet& iConfig):
-  metToken_(consumes<pat::METCollection>(iConfig.getParameter<edm::InputTag>("mets"))),
+  slimMetToken_(consumes<pat::METCollection>(iConfig.getParameter<edm::InputTag>("slimMets"))),
+  patPFMetT1Token_(consumes<pat::METCollection>(iConfig.getParameter<edm::InputTag>("patPFMetT1"))),
+  patPFMetT1TxyToken_(consumes<pat::METCollection>(iConfig.getParameter<edm::InputTag>("patPFMetT1Txy"))),
   vtxToken_(consumes<reco::VertexCollection>(iConfig.getParameter<edm::InputTag>("vertices")))
 {
    //now do what ever initialization is needed
@@ -127,9 +133,14 @@ MiniAodAnalyzer::analyze(const edm::Event& iEvent, const edm::EventSetup& iSetup
 //   iSetup.get<SetupRecord>().get(pSetup);
 //#endif
 //
-   Handle<pat::METCollection> mets;
-   iEvent.getByToken(metToken_, mets);
-   //iEvent.getByLabel(metToken_, mets);
+   Handle<pat::METCollection> slimMets;
+   Handle<pat::METCollection> patPFMetT1s;
+   Handle<pat::METCollection> patPFMetT1Txys;
+
+   iEvent.getByToken(slimMetToken_, slimMets);
+   iEvent.getByToken(patPFMetT1Token_, patPFMetT1s);
+   iEvent.getByToken(patPFMetT1TxyToken_, patPFMetT1Txys);
+
    Handle<reco::VertexCollection> vertices;
    iEvent.getByToken(vtxToken_, vertices);
    // good vertex requirement
@@ -137,8 +148,13 @@ MiniAodAnalyzer::analyze(const edm::Event& iEvent, const edm::EventSetup& iSetup
    const reco::Vertex &PV = vertices->front();
    npv = vertices->size();
 
-   const pat::MET &met = mets->front();
-   TVector2 t2_type1pfMET = TVector2(met.px(),met.py());
+   const pat::MET &slimMet       = slimMets->front();
+   const pat::MET &patPFMetT1    = patPFMetT1s->front();
+   const pat::MET &patPFMetT1Txy = patPFMetT1Txys->front();
+
+   t2_slimMet       = TVector2(slimMet.px(),       slimMet.py());
+   t2_patPFMetT1    = TVector2(patPFMetT1.px(),    patPFMetT1.py());
+   t2_patPFMetT1Txy = TVector2(patPFMetT1Txy.px(), patPFMetT1Txy.py());
    //type1pfmet    = vtype1pfMET.Mod();
    //type1pfmetPhi = vtype1pfMET.Phi();
 
@@ -153,8 +169,9 @@ void
 MiniAodAnalyzer::beginJob()
 {
   OutTree = fs->make<TTree>("Events", "Events");
-  OutTree->Branch("t2_type1pfmet",    &t2_type1pfmet);   // Type-1 corrected PF MET
-  //OutTree->Branch("type1pfmetPhi",    &type1pfmetPhi,    "type1pfmetPhi/F");   // Type-1 corrected PF MET
+  OutTree->Branch("t2_slimMet",       &t2_slimMet);   // Type-1 corrected PF MET
+  OutTree->Branch("t2_patPFMetT1",    &t2_patPFMetT1);
+  OutTree->Branch("t2_patPFMetT1Txy", &t2_patPFMetT1Txy);
   OutTree->Branch("npv",           &npv,           "npv/I");          // number of primary vertices
 
 }

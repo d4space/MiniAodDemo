@@ -26,20 +26,31 @@ void ctlMET(const TString inputFileName = "Wenu_p_select.root") {
   // Declare variables to read in ntuple
   //
   Int_t nVtx, nEvents;
+
   TVector2 *vtype1pfMET=0, *vrawpfMET=0, *vgenMET=0;
+  TVector2 *t2_slimMet=0, *t2_patPFMetT1=0, *t2_patPFMetT1Txy=0;
 
   inputTree->SetBranchAddress("npv",         &nVtx);        // number of vertices
 //  inputTree->SetBranchAddress("nEvents",      &nEvents);     // number of events
-  inputTree->SetBranchAddress("t2_type1pfmet",  &vtype1pfMET); // type-1 corrected pf MET
+  //inputTree->SetBranchAddress("t2_type1pfmet",  &vtype1pfMET); // type-1 corrected pf MET
 //  inputTree->SetBranchAddress("vrawpfMET",    &vrawpfMET);   // raw pf MET
 //  inputTree->SetBranchAddress("vgenMET",      &vgenMET);     // generated MET
+  inputTree->SetBranchAddress("t2_slimMet",       &t2_slimMet);
+  inputTree->SetBranchAddress("t2_patPFMetT1",    &t2_patPFMetT1);
+  inputTree->SetBranchAddress("t2_patPFMetT1Txy", &t2_patPFMetT1Txy);
            
   //
   // Declare histograms
   //
-  TH1D *htype1  = new TH1D("htype1","",100,0,150);
-        htype1->SetStats(0);
-        htype1->SetLineColor(1);
+  TH1D *hSlimMet  = new TH1D("hSlimMet","",100,0,150);
+        hSlimMet->SetStats(0);
+        hSlimMet->SetLineColor(1);
+  TH1D *hpatPFMetT1  = new TH1D("patPFMetT1","",100,0,150);
+        hpatPFMetT1->SetStats(0);
+        hpatPFMetT1->SetLineColor(1);
+  TH1D *hpatPFMetT1Txy  = new TH1D("patPFMetT1Txy","",100,0,150);
+        hpatPFMetT1Txy->SetStats(0);
+        hpatPFMetT1Txy->SetLineColor(1);
   TH1D *htype1phi = new TH1D("htype1phi","",100,-3.5,3.5);
         htype1phi->SetStats(0);
         htype1phi->SetLineColor(1);
@@ -69,7 +80,7 @@ void ctlMET(const TString inputFileName = "Wenu_p_select.root") {
   leg->SetFillStyle(1001);
   leg->SetBorderSize(0);
 
-  leg->AddEntry(htype1,"Type 1 Corrected PF","l");
+  leg->AddEntry(hSlimMet,"Type 1 Corrected PF","l");
   leg->AddEntry(htype1corr,"Type 1 + xy Shift Corrected PF","l");
 
   Int_t totalEvents=0;
@@ -81,8 +92,8 @@ void ctlMET(const TString inputFileName = "Wenu_p_select.root") {
     //
     // Fill histograms
     //
-    hmetx->Fill(nVtx,vtype1pfMET->Px());
-    hmety->Fill(nVtx,vtype1pfMET->Py());
+    hmetx->Fill(nVtx,t2_slimMet->Px());
+    hmety->Fill(nVtx,t2_slimMet->Py());
   }
 
   cout << "totalEvents is " << totalEvents << endl;
@@ -143,10 +154,10 @@ void ctlMET(const TString inputFileName = "Wenu_p_select.root") {
   for(int kentry=0;kentry<inputTree->GetEntries();kentry++) {
     inputTree->GetEntry(kentry);
 
-    type1x = vtype1pfMET->Px();
-    type1y = vtype1pfMET->Py();
+    type1x = t2_slimMet->Px();
+    type1y = t2_slimMet->Py();
 
-    type1phi = vtype1pfMET->Phi();
+    type1phi = t2_slimMet->Phi();
     if(type1phi>TMath::Pi()) type1phi -= 2*TMath::Pi();
     //rawphi = vrawpfMET->Phi();
     //if(rawphi>TMath::Pi())   rawphi   -= 2*TMath::Pi();
@@ -161,7 +172,9 @@ void ctlMET(const TString inputFileName = "Wenu_p_select.root") {
     //
     // Fill histograms
     //
-    htype1->Fill(vtype1pfMET->Mod());
+    hSlimMet      ->Fill(t2_slimMet->Mod());
+    hpatPFMetT1   ->Fill(t2_patPFMetT1->Mod());
+    hpatPFMetT1Txy->Fill(t2_patPFMetT1Txy->Mod());
     htype1phi->Fill(type1phi);
     htype1corr->Fill(corrMET);
     htype1phicorr->Fill(corrMETphi);
@@ -170,10 +183,31 @@ void ctlMET(const TString inputFileName = "Wenu_p_select.root") {
   //
   // Save plots
   //
+  TLegend *leg_all = new TLegend(0.4181034,0.6758475,0.6954023,0.8135593,NULL,"brNDC");
+  leg_all->SetTextFont(62);
+  leg_all->SetTextSize(0.03330866);
+  leg_all->SetLineColor(1);
+  leg_all->SetLineStyle(1);
+  leg_all->SetLineWidth(1);
+  leg_all->SetFillColor(0);
+  leg_all->SetFillStyle(1001);
+  leg_all->SetBorderSize(0);
+
+  leg_all->AddEntry(hSlimMet,"Slimmed","l");
+  leg_all->AddEntry(hpatPFMetT1,"patPFMetT1","l");
+  leg_all->AddEntry(hpatPFMetT1Txy,"patPFMetT1Txy","l");
+
+  TCanvas* tc_allmet = new TCanvas();
+  tc_allmet->cd();
+  hSlimMet->Draw();
+  hpatPFMetT1->Draw("same");
+  hpatPFMetT1Txy->Draw("same");
+  leg_all->Draw("same");
+  tc_allmet->Print("allMet.png");
 
   TCanvas* cmet = new TCanvas();
   cmet->cd();
-  htype1->Draw("same");
+  hSlimMet->Draw("same");
   htype1corr->Draw("same");
   leg->Draw("same");
   cmet->Print("met.png");

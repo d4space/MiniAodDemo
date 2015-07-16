@@ -3,6 +3,9 @@ import FWCore.ParameterSet.Config as cms
 process = cms.Process("Met")
 
 process.load("FWCore.MessageService.MessageLogger_cfi")
+process.MessageLogger.destinations = ['cout', 'cerr']
+process.MessageLogger.cerr.FwkReport.reportEvery = 1000
+
 
 process.maxEvents = cms.untracked.PSet( input = cms.untracked.int32(-1) )
 
@@ -20,7 +23,9 @@ process.TFileService = cms.Service("TFileService",
 
 process.MiniAodAna = cms.EDAnalyzer('MiniAodAnalyzer',
     vertices = cms.InputTag("offlineSlimmedPrimaryVertices"),
-    mets = cms.InputTag("slimmedMETs"),
+    slimMets = cms.InputTag("slimmedMETs"),
+    patPFMetT1 = cms.InputTag("patPFMetT1"),
+    patPFMetT1Txy = cms.InputTag("patPFMetT1Txy"),
 )
 
 
