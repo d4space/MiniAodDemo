@@ -47,10 +47,10 @@ void ctlMET(const TString inputFileName = "Wenu_p_select.root") {
         hSlimMet->SetLineColor(1);
   TH1D *hpatPFMetT1  = new TH1D("patPFMetT1","",100,0,150);
         hpatPFMetT1->SetStats(0);
-        hpatPFMetT1->SetLineColor(1);
+        hpatPFMetT1->SetLineColor(2);
   TH1D *hpatPFMetT1Txy  = new TH1D("patPFMetT1Txy","",100,0,150);
         hpatPFMetT1Txy->SetStats(0);
-        hpatPFMetT1Txy->SetLineColor(1);
+        hpatPFMetT1Txy->SetLineColor(3);
   TH1D *htype1phi = new TH1D("htype1phi","",100,-3.5,3.5);
         htype1phi->SetStats(0);
         htype1phi->SetLineColor(1);
@@ -80,7 +80,7 @@ void ctlMET(const TString inputFileName = "Wenu_p_select.root") {
   leg->SetFillStyle(1001);
   leg->SetBorderSize(0);
 
-  leg->AddEntry(hSlimMet,"Type 1 Corrected PF","l");
+  leg->AddEntry(hSlimMet,"Type 1 Corrected PF","lp");
   leg->AddEntry(htype1corr,"Type 1 + xy Shift Corrected PF","l");
 
   Int_t totalEvents=0;
@@ -193,13 +193,16 @@ void ctlMET(const TString inputFileName = "Wenu_p_select.root") {
   leg_all->SetFillStyle(1001);
   leg_all->SetBorderSize(0);
 
-  leg_all->AddEntry(hSlimMet,"Slimmed","l");
+  leg_all->AddEntry(hSlimMet,"Slimmed","p");
   leg_all->AddEntry(hpatPFMetT1,"patPFMetT1","l");
   leg_all->AddEntry(hpatPFMetT1Txy,"patPFMetT1Txy","l");
 
   TCanvas* tc_allmet = new TCanvas();
   tc_allmet->cd();
-  hSlimMet->Draw();
+  hSlimMet->SetMarkerStyle(21);
+  hSlimMet->SetMarkerSize(1);
+  hSlimMet->Draw("p0");
+  //hSlimMet->Draw("p9");
   hpatPFMetT1->Draw("same");
   hpatPFMetT1Txy->Draw("same");
   leg_all->Draw("same");
